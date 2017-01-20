@@ -1,27 +1,8 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-#------------------------------------------------------------------------------
-# Inserir os dados do Times & Trades - Aba negocios
-#
-#------------------------------------------------------------------------------
-# Importação das Bibliotecas
-import psycopg2
-#import sys
+
 import csv
-
-#------------------------------------------------------------------------------
-# Abrindo conexão com o banco de dados
-con = psycopg2.connect( host='localhost',
-                        user='rodolpho',
-                        password='macav810',
-                        dbname='bolsa')
-c = con.cursor()
-
-
-# Acessando o schema
-c.execute('SET SEARCH_PATH TO dolar')
-con.commit()
 
 # -----------------------------------------------------------------------------
 # Funções
@@ -29,10 +10,10 @@ con.commit()
 
 # Trocar caracter especial
 def rmChar(txt):
-    txt = txt.replace("\xc0", "A")
-    txt = txt.replace("\xc1", "A")
-    txt = txt.replace("\xc2", "A")
-    txt = txt.replace("\xc3", "A")
+    txt = txt.replace("\xc0", "a")
+    txt = txt.replace("\xc1", "a")
+    txt = txt.replace("\xc2", "a")
+    txt = txt.replace("\xc3", "a")
     txt = txt.replace("\xc4", "a")
     txt = txt.replace("\xc7", "C")
     txt = txt.replace("\xe7", "c")
@@ -79,8 +60,9 @@ def rmChar(txt):
     return txt
 
 
+# Retira virgula
 def rmVirgula(num):
-    num =str(num).replace(",", "")
+    num = num.replace(",", "")
     return num
 
 
@@ -91,10 +73,11 @@ def arrumaData(data):
     return str(ano)+'-'+str(mes)+'-'+str(dia)
 
 
-#------------------------------------------------------------------------------
-# Inserindo no banco de dados
+# Retira traco
+def rmTraco(string):
+    return string.replace("-", "")
 
-ficheiro = open('/home/rodolpho/Desktop/TTneg.csv', 'rb')
+ficheiro = open('/home/rodolpho/Desktop/tt_ordem_original.csv', 'rb')
 dados = csv.reader(ficheiro, delimiter=';')
 
 dados.next()
@@ -102,21 +85,11 @@ dados.next()
 for dado in dados:
     data = arrumaData(dado[0])
     hora = dado[1]
-    comprador = rmChar(dado[2])
-    valor = rmVirgula(dado[3])
-    quantidade = dado[4]
-    vendedor = rmChar(dado[5])
+    comprador = rmTraco(dado[2])
+    valor = rmChar(dado[3])
+    quantidade = rmVirgula(dado[4])
+    vendedor = rmTraco(dado[5])
     agressor = dado[6]
 
-    #print data, hora, comprador,valor, quantidade, vendedor, agressor
-
-    #--------------------------------------------------------------------------
-    # Inserindo no banco de dados
-    print('''  INSERT INTO negocios
-                VALUES ('%s', '%s', %s, %s,
-                            '%s', '%s', '%s') '''
-            %(data, hora, valor, quantidade, comprador, vendedor, agressor))
-
-    # Pesistindo dados no BD
-    con.commit()
-
+    print data, hora, comprador, \
+        valor, quantidade, vendedor, agressor
